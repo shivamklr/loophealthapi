@@ -20,9 +20,23 @@ module.exports.createProduct = async (req, res) => {
 };
 
 module.exports.getProducts = async (req, res) => {
+    const { brand, gender, category } = req.query;
+    console.log(req.query);
+    // TODO: validate query params
+    // TODO: implement caching
+    const filters = {};
+    if (brand) {
+        filters.brand = brand;
+    }
+    if (gender) {
+        filters.gender = gender;
+    }
+    if (category) {
+        filters.category = category;
+    }
     try {
-        const products = await Product.find().lean();
-        res.status(200).json({ products });
+        const products = await Product.find(filters).lean();
+        res.status(200).json({ data: { products } });
     } catch (e) {
         console.log({ e });
     }
