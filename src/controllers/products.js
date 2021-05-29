@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const { distinctField } = require("../utils/helper");
 
 // FIXME: error handling missing
 module.exports.createProduct = async (req, res) => {
@@ -21,10 +22,8 @@ module.exports.createProduct = async (req, res) => {
 };
 
 module.exports.getProducts = async (req, res) => {
-    const { brand, gender, category } = req.query;
-    console.log(req.query);
+    const { brand, gender, category, price } = req.query;
     // TODO: validate query params
-    // TODO: implement caching
     const filters = {};
     if (brand) {
         filters.brand = brand;
@@ -51,23 +50,18 @@ module.exports.getProducts = async (req, res) => {
 
 module.exports.getFilters = async (req, res) => {
     try {
+        const genders = await distinctField("gender");
+        const brands = await distinctField("brand");
+        const categories = await distinctField("category");
+        const prices = {};
         const maxDoc = await Product.find().sort({ price: -1 }).limit(1);
         const minDoc = await Product.find().sort({ price: 1 }).limit(1);
         prices.min = await minDoc[0].price;
         prices.max = await maxDoc[0].price;
+        res.status(200).json({
+            filters: { genders, brands, categories, prices },
         });
-        let brands;
-        await Product.find({}).distinct("brand", (err, brandList) => {
-            if (err) throw new Error("Error while finding distinct brand");
-            brands = brandList;
-        });
-        let categories;
-        await Product.find({}).distinct("category", (err, categoryList) => {
-            if (err) throw new Error("Error while finding distinct category");
-            categories = categoryList;
-        });
-        res.status(200).json({ filters: { genders, brands, categories } });
-    } catch (error) {
+    } catch (e) {
         console.log({ e });
     }
 };
