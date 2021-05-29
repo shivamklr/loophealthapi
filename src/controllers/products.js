@@ -35,10 +35,15 @@ module.exports.getProducts = async (req, res) => {
     if (category) {
         filters.category = category;
     }
+    if (price) {
+        filters.price = { $gte: price.startPrice, $lte: price.endPrice };
+    }
     try {
         const products = await Product.find(filters).lean();
         // TODO: add applied filters
-        res.status(200).json({ data: { products } });
+        res.status(200).json({
+            data: { products, appliedParams: { ...filters } },
+        });
     } catch (e) {
         console.log({ e });
     }
@@ -46,10 +51,10 @@ module.exports.getProducts = async (req, res) => {
 
 module.exports.getFilters = async (req, res) => {
     try {
-        let genders;
-        await Product.find({}).distinct("gender", (err, genderList) => {
-            if (err) throw new Error("Error while finding distinct gender");
-            genders = genderList;
+        const maxDoc = await Product.find().sort({ price: -1 }).limit(1);
+        const minDoc = await Product.find().sort({ price: 1 }).limit(1);
+        prices.min = await minDoc[0].price;
+        prices.max = await maxDoc[0].price;
         });
         let brands;
         await Product.find({}).distinct("brand", (err, brandList) => {
