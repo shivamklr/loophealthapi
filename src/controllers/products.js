@@ -1,7 +1,6 @@
 const Product = require("../models/product");
 const { distinctField } = require("../utils/helper");
 
-// FIXME: error handling missing
 module.exports.createProduct = async (req, res) => {
     const { productName, brand, gender, category, price, images } = req.body;
     // TODO: validate fields
