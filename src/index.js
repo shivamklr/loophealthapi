@@ -10,7 +10,6 @@ const PORT = process.env.PORT || config.PORT;
 const app = express();
 //body parser
 app.use(express.json());
-// TODO: Add routes middleware
 app.use(router);
 
 app.listen(PORT, () => {

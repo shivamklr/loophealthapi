@@ -17,13 +17,12 @@ module.exports.createProduct = async (req, res) => {
         console.log(product);
         res.status(201).json({ body: product });
     } catch (e) {
-        console.log({ e });
+        throw e;
     }
 };
 
 module.exports.getProducts = async (req, res) => {
     const { brand, gender, category, price } = req.query;
-    // TODO: validate query params
     const filters = {};
     if (brand) {
         filters.brand = brand;
@@ -39,12 +38,16 @@ module.exports.getProducts = async (req, res) => {
     }
     try {
         const products = await Product.find(filters).lean();
-        // TODO: add applied filters
+        const productsCount = products.length;
         res.status(200).json({
-            data: { products, appliedParams: { ...filters } },
+            data: {
+                products,
+                productsCount,
+                appliedParams: { ...filters },
+            },
         });
     } catch (e) {
-        console.log({ e });
+        throw e;
     }
 };
 
@@ -62,6 +65,6 @@ module.exports.getFilters = async (req, res) => {
             filters: { genders, brands, categories, prices },
         });
     } catch (e) {
-        console.log({ e });
+        throw e;
     }
 };
