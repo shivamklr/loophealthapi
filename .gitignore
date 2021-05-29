@@ -1,2 +1,4 @@
 node_modules
 config.js
+deploy.sh
+LoopHealthAPIkey.pem
